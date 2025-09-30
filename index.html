@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Interface</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        #body-chat {
+            font-family: Albert Sans;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+            align-items: end;
+            margin: 0;
+            background-color: #f0f0f0;
+            padding-left: 1%;
+            padding-right: 1%;
+            align-self: bottom;
+            width: 400px;
+            justify-self: end;
+        }
+
+        #chat-container {
+            width: 400px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+            margin-left: 10px;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            box-shadow: 0px 4px 10px #0000003D;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+            margin-right: 5px;
+        }
+
+        #chat-container.show {
+            opacity: 1;
+            /* Hace visible el chat */
+            transform: scale(1);
+            /* Aparece con animaciÃ³n */
+            pointer-events: auto;
+        }
+
+        #chat-container.full {
+            width: 800px;
+            height: 465px;
+        }
+
+        #chat-box {
+            flex: 1;
+            padding: 20px;
+            padding-top: 5px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ccc;
+        }
+
+        #input-container {
+            display: flex;
+            padding: 10px;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #send-button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #send-button:hover {
+            background-color: #003c71;
+        }
+
+        .message {
+            display: flex;
+            width: 80%;
+            font-size: 14px;
+        }
+
+        .message.full {
+            width: 85%;
+        }
+
+        .message.user {
+            background: #003c71;
+            color: #fff;
+            padding-left: 10px;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            justify-self: right;
+            line-height: 20px;
+            margin-top: 3px;
+            margin-bottom: 3px;
+            border-radius: 20px;
+            padding-right: 10px;
+        }
+
+        .message.bot {
+            margin-top: 3px;
+            margin-bottom: 3px;
+            padding-right: 10px;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            border-radius: 20px;
+            width: 90%;
+        }
+
+
+        #chat-header {
+            display: flex;
+            align-items: center;
+            border-bottom: solid;
+            border-bottom-width: 1px;
+            border-bottom-color: #E4EDFF;
+            padding-left: 10px;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            gap: 15px;
+        }
+
+        #header-text {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        #header-title {
+            font-size: 1.5em;
+            line-height: 1.05em;
+            font-weight: 600;
+        }
+
+        #header-subtitle {
+            font-size: 1.0em;
+            line-height: 1.2em;
+            color: #003c71;
+            font-weight: 600;
+        }
+
+        #header-img {
+            margin-left: 5px;
+        }
+
+        #open-button {
+            margin-right: 10px;
+            border: solid;
+            border-width: 1px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            width: 1.5em;
+            height: 1.5em;
+            margin-bottom: 10px;
+            padding: 5px;
+            paddin-bottom: 2px;
+            font-size: 2.2em;
+            color: #003c71;
+            border-color: #1f1f1f;
+        }
+
+        #open-button:hover {
+            animation: blink 1s infinite alternate;
+        }
+
+        @keyframes blink {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(0.9);
+            }
+
+            100% {
+                transform: scale(1.1);
+            }
+        }
+
+        #close-button {
+            position: absolute;
+            top: 18px;
+            right: 15px;
+            align-self: end;
+            justify-self: right;
+            border: none;
+            background: none;
+            /*font-size: 3em;*/
+            font-size: 2.5em;
+            font-weight: 100;
+            cursor: pointer;
+        }
+
+        #close-button:hover {
+            color: #ECA154;
+        }
+
+        .button-form {
+            width: 2rem;
+            height: 2rem;
+            background: #fff;
+            border-radius: 10px;
+        }
+
+        #full-screen-button {
+            padding: 3px;
+            border-radius: 10px;
+            /*background: #4382ff;
+                                    border:solid;*/
+            background: transparent;
+            border: none;
+            border-width: 1px;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            right: 60px;
+            font-size: 2em;
+        }
+
+        #full-screen-button:hover {
+            /*.button-form{
+                                        background: #dcdede;
+                                    }*/
+            color: #5e8ab4;
+        }
+
+        .bot-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bot-avatar {
+            width: 25px;
+            height: 25px;
+            min-width: 25px;
+            min-height: 25px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 5px;
+        }
+
+        .bot-avatar::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            /* Fondo naranja */
+            border-radius: 50%;
+            z-index: -1;
+            /* Lo pone detrÃ¡s de la imagen */
+        }
+
+        .bot-avatar img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .bot-text {
+            background: #BBBCBC;
+            padding: 15px;
+            border-radius: 20px;
+            max-width: 100%;
+            line-height: 20px;
+            min-width: 2rem;
+        }
+
+        .typing-animation::after {
+            content: ".";
+            font-size: 2.5rem;
+            display: inline-block;
+            animation: typing 1.5s infinite;
+        }
+
+        @keyframes typing {
+            0% {
+                content: ".";
+            }
+
+            33% {
+                content: "..";
+            }
+
+            66% {
+                content: "...";
+            }
+        }
+
+        @media(max-width: 1050px) {
+            #chat-container.full {
+                width: 675px;
+            }
+        }
+
+        @media(max-width: 768px) {
+            #chat-container {
+                width: 400px;
+            }
+                #body-chat{
+                    width: 400px;
+                }
+        }
+
+        @media(max-width: 700px) {
+            .message.full {
+                width: 75%;
+            }
+
+            #chat-container.full {
+                width: 400px;
+            }
+        }
+
+        @media(max-width: 450px) {
+            #chat-container {
+                width: 80%;
+                margin-right: 5px;
+            }
+
+            #chat-container.full {
+                width: 80%;
+                margin-right: 5px;
+            }
+
+            .message {
+                width: 14em;
+                width: 85%;
+            }
+
+            .message.full {
+                width: 85%;
+            }
+
+            #full-screen-button {
+                display: none;
+            }
+        }
+
+        #input-container {}
+
+        #user-input {
+            border-radius: 0px;
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+            outline: none;
+            border-right: none;
+            border-color: #003c71;
+        }
+
+        #send-button {
+            border-radius: 0px;
+            margin-left: 0px;
+            border-top-right-radius: 20px;
+            border-bottom-right-radius: 20px;
+            color: #003c71;
+            background: #fff;
+            border: solid;
+            border-left: none;
+            border-width: 1px;
+            border-color: #003c71;
+        }
+
+        #send-button:hover {
+            color: #fff;
+            background: #003c71;
+            box-shadow: 0 0 5px #003c71;
+        }
+
+        #brand {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 30px;
+            border-top: solid;
+            border-width: 1px;
+            border-color: #ccc;
+        }
+
+        #brand h2 {
+            font-size: 0.9em;
+            color: #8D8D8D;
+        }
+
+        .img-product {
+            width: 13rem;
+        }
+
+        .img-product.full {
+            width: 18em;
+            height: 18em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+        }
+
+        @media(max-width: 700px) {
+            .img-product.full {
+                width: 15.5em;
+                height: 15.5em;
+            }
+        }
+
+        @media(max-width: 450px) {
+            .img-product.full {
+                width: 12.5em;
+                height: 12.5em;
+            }
+
+            .img-product {
+                width: 12.5em;
+                height: 12.5em;
+            }
+        }
+
+        #terms-container {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            padding-top: 5px;
+            justify-content: center;
+            align-items: center;
+            border-bottom: solid;
+            border-width: 1px;
+            border-color: #ddd;
+            background: #d8e3ed;
+
+            h2 {
+                font-size: 1em;
+                text-align: center;
+
+                a {
+                    color: #003c71;
+                }
+            }
+        }
+
+        #terms-button {
+            width: 60px;
+            padding: 5px;
+            background: #003c71;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        #terms-button:hover {
+            background: #5e8ab4;
+        }
+
+        #user-input:disabled,
+        #send-button:disabled,
+        #full-screen-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body id="body-chat">
+    <div id="chat-container">
+        <div id="chat-header">
+            <div id="header-img">
+                <img
+                    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAQlBMVEVHcExQUFA7OzwqKiomJiYcHByrq6s2NjYAAAADAwSJiYpiYmOWlpbR0dG8vLxQUFH////t7e0zMzPc3NxNTU2QkJCvWxi7AAAAFXRSTlMATpTM7v8SpP//Hv///////////1PNrLSPAAABEElEQVR4AYWTV5bDMAwD5cJoEPd2/6tu+Gyt5dT5BST2kFGUVW1WV2UR3nCLBkgCsHh71ktzNQEqr89r0BXq7JO7oRew+/9719850h81egv1kR+vkiNRvg8ANG3XI+RBIs/y0I8POiTFh8G4ys3k8m7AQiiu+ry42A/T/gPrJUXYXG6BZIihItM7fw0oGaiyJoB/P4B0Gupg5PrkcmaQBXPJ8f8XEukHCzVs7YPNi9/ag+0MUcH4lpRkCd2yLJ7/kpEM0RsF0HiCGWejgh1ljQ1y8iqwY1j7B7oYFjyCj1uIoWlmlDE0A0L3tDAAupAW5vfK/V7a32v/9nDww8kp9eb03hyv8/54nSLu5x/XcPIHqcofqYvE+ZIAAAAASUVORK5CYII=">
+            </div>
+            <div id="header-text">
+                <span id="header-subtitle"></span>
+                <span id="header-title">Arcos</span>
+            </div>
+            <div>
+                <button id="close-button"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            <div>
+                <button id="full-screen-button">
+                    <i class="fa-solid fa-expand" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <div id="chat-box"></div>
+        <div id="terms-container">
+            <h2>Para usarme, debes aceptar nuestra <a href="https://www.arcos.com/es_ES/politica-de-privacidad"
+                    target="_blank">política de privacidad</a> haciendo clic en el botón de Aceptar.</h2>
+            <button id="terms-button">Aceptar</button>
+        </div>
+        <div id="input-container">
+            <input type="text" id="user-input" placeholder="Escribe tu mensaje...">
+            <button id="send-button">Enviar</button>
+        </div>
+        <div id="brand">
+            <h2>auria</h2>
+        </div>
+    </div>
+    <button id="open-button"><i class="fa-solid fa-comment"></i></button>
+    
+    <script>
+        // Generar o recuperar sessionId al cargar la pagina
+        const sessionId = sessionStorage.getItem('sessionId') || (() => { 
+            const id = 'sess_' + Math.random().toString(36).substring(2,10); 
+            sessionStorage.setItem('sessionId', id); 
+            return id; 
+        })();
+
+        // Capturar URL actual
+        const currentUrl = window.location.href;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatBox = document.getElementById('chat-box');
+            const userInput = document.getElementById('user-input');
+            const sendButton = document.getElementById('send-button');
+
+            const webhookUrl = 'https://n8n.asistentesinnova.com/webhook/fb2280ec-4ec2-434d-b6c6-b3d9d80221d5';
+
+            const appendMessage = (message, sender) => {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', sender);
+                if (sender === 'bot') {
+                    messageElement.innerHTML = `
+                                        <div class="bot-avatar">
+                                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAQlBMVEVHcExQUFA7OzwqKiomJiYcHByrq6s2NjYAAAADAwSJiYpiYmOWlpbR0dG8vLxQUFH////t7e0zMzPc3NxNTU2QkJCvWxi7AAAAFXRSTlMATpTM7v8SpP//Hv///////////1PNrLSPAAABEElEQVR4AYWTV5bDMAwD5cJoEPd2/6tu+Gyt5dT5BST2kFGUVW1WV2UR3nCLBkgCsHh71ktzNQEqr89r0BXq7JO7oRew+/9719850h81egv1kR+vkiNRvg8ANG3XI+RBIs/y0I8POiTFh8G4ys3k8m7AQiiu+ry42A/T/gPrJUXYXG6BZIihItM7fw0oGaiyJoB/P4B0Gupg5PrkcmaQBXPJ8f8XEukHCzVs7YPNi9/ag+0MUcH4lpRkCd2yLJ7/kpEM0RsF0HiCGWejgh1ljQ1y8iqwY1j7B7oYFjyCj1uIoWlmlDE0A0L3tDAAupAW5vfK/V7a32v/9nDww8kp9eb03hyv8/54nSLu5x/XcPIHqcofqYvE+ZIAAAAASUVORK5CYII=" alt="Bot">
+                            </div>
+                                        <div class="bot-text">${message}</div>
+                                    `;
+                } else {
+                    messageElement.textContent = message;
+                }
+                chatBox.appendChild(messageElement);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            };
+
+            const sendMessage = async () => {
+                const message = userInput.value.trim();
+                if (message === '') return;
+
+                appendMessage(message, 'user');
+                userInput.value = '';
+                const loadingMessage = document.createElement('div');
+                loadingMessage.classList.add('message', 'bot', 'bot-message');
+                loadingMessage.innerHTML = `
+                                <div class="bot-avatar">
+                                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAQlBMVEVHcExQUFA7OzwqKiomJiYcHByrq6s2NjYAAAADAwSJiYpiYmOWlpbR0dG8vLxQUFH////t7e0zMzPc3NxNTU2QkJCvWxi7AAAAFXRSTlMATpTM7v8SpP//Hv///////////1PNrLSPAAABEElEQVR4AYWTV5bDMAwD5cJoEPd2/6tu+Gyt5dT5BST2kFGUVW1WV2UR3nCLBkgCsHh71ktzNQEqr89r0BXq7JO7oRew+/9719850h81egv1kR+vkiNRvg8ANG3XI+RBIs/y0I8POiTFh8G4ys3k8m7AQiiu+ry42A/T/gPrJUXYXG6BZIihItM7fw0oGaiyJoB/P4B0Gupg5PrkcmaQBXPJ8f8XEukHCzVs7YPNi9/ag+0MUcH4lpRkCd2yLJ7/kpEM0RsF0HiCGWejgh1ljQ1y8iqwY1j7B7oYFjyCj1uIoWlmlDE0A0L3tDAAupAW5vfK/V7a32v/9nDww8kp9eb03hyv8/54nSLu5x/XcPIHqcofqYvE+ZIAAAAASUVORK5CYII=" alt="Bot">
+                                </div>
+                                <div class="bot-text"><span class="typing-animation"></span></div>
+                                `;
+                chatBox.appendChild(loadingMessage);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                try {
+                    const response = await fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            text: message,
+                            sessionId: sessionId,
+                            currentURL: currentUrl 
+                        }),
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        setTimeout(() => {
+                            loadingMessage.remove();
+                            appendMessage(data.reply, 'bot');
+                        }, 1000);
+                    } else {
+                        appendMessage('Error al comunicarse con el servidor.', 'bot');
+                    }
+                } catch (error) {
+                    appendMessage('Error de conexión.', 'bot');
+                }
+            };
+
+            sendButton.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const chatContainer = document.getElementById("chat-container");
+            const chatBox = document.getElementById("chat-box");
+            const openButton = document.getElementById("open-button");
+            const closeButton = document.getElementById("close-button");
+            const fullScreenButton = document.getElementById("full-screen-button");
+            const termsContainer = document.getElementById('terms-container');
+            const termsButton = document.getElementById('terms-button');
+            const userInput = document.getElementById('user-input');
+            const sendButton = document.getElementById('send-button');
+
+            // Deshabilitar el input y los botones al inicio
+            const termsAccepted = sessionStorage.getItem('termsAccepted');
+
+            if (termsAccepted) {
+                termsContainer.style.display = 'none';
+                userInput.disabled = false;
+                sendButton.disabled = false;
+                fullScreenButton.disabled = false;
+            } else {
+                userInput.disabled = true;
+                sendButton.disabled = true;
+                fullScreenButton.disabled = true;
+            }
+
+            // Evento al hacer clic en el botÃ³n de aceptar tÃ©rminos
+            termsButton.addEventListener('click', () => {
+                sessionStorage.setItem('termsAccepted', 'true'); // Guardar que se aceptaron los tÃ©rminos
+                termsContainer.style.display = 'none';
+                userInput.disabled = false;
+                sendButton.disabled = false;
+                fullScreenButton.disabled = false;
+            });
+
+            openButton.addEventListener("click", () => {
+                chatContainer.classList.toggle("show"); // Alterna la visibilidad sin afectar la posiciÃ³n del botÃ³n
+
+            });
+            closeButton.addEventListener("click", () => {
+                chatContainer.classList.toggle("show"); // Alterna la visibilidad sin afectar la posiciÃ³n del botÃ³n
+
+            });
+            fullScreenButton.addEventListener("click", () => {
+                chatContainer.classList.toggle("full"); // Alterna la visibilidad sin afectar la posiciÃ³n del botÃ³n
+                document.querySelectorAll('.message').forEach(message => {
+                    message.classList.toggle("full");
+                });
+                document.querySelectorAll('.img-product').forEach(message => {
+                    message.classList.toggle("full");
+                });
+            });
+            const observer = new MutationObserver(mutations => {
+                mutations.forEach(mutation => {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === 1 && node.classList.contains('message')) {
+                            if (chatContainer.classList.contains("full")) {
+                                node.classList.add("full");
+                            }
+                        }
+                    });
+                });
+            });
+            observer.observe(chatBox, { childList: true });
+
+            const observerImg = new MutationObserver(mutations => {
+                mutations.forEach(mutation => {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === 1 && node.classList.contains('img-product')) {
+                            if (chatContainer.classList.contains("full")) {
+                                node.classList.add("full");
+                            }
+                        }
+                        // Si dentro del mensaje hay imÃ¡genes, aplicar la clase a todas
+                        const images = node.querySelectorAll('.img-product');
+                        images.forEach(img => {
+                            requestAnimationFrame(() => {
+                                if (chatContainer.classList.contains("full")) {
+                                    img.classList.add("full");
+                                }
+                            });
+                        });
+                    });
+                });
+            });
+            observerImg.observe(chatBox, { childList: true });
+        });
+    </script>
+
+</body>
+
