@@ -317,9 +317,10 @@
             #chat-container {
                 width: 400px;
             }
-                #body-chat{
-                    width: 400px;
-                }
+
+            #body-chat {
+                width: 400px;
+            }
         }
 
         @media(max-width: 700px) {
@@ -514,13 +515,13 @@
         </div>
     </div>
     <button id="open-button"><i class="fa-solid fa-comment"></i></button>
-    
+
     <script>
         // Generar o recuperar sessionId al cargar la pagina
-        const sessionId = sessionStorage.getItem('sessionId') || (() => { 
-            const id = 'sess_' + Math.random().toString(36).substring(2,10); 
-            sessionStorage.setItem('sessionId', id); 
-            return id; 
+        const sessionId = sessionStorage.getItem('sessionId') || (() => {
+            const id = 'sess_' + Math.random().toString(36).substring(2, 10);
+            sessionStorage.setItem('sessionId', id);
+            return id;
         })();
 
         // Capturar URL actual
@@ -558,14 +559,66 @@
                 userInput.value = '';
                 const loadingMessage = document.createElement('div');
                 loadingMessage.classList.add('message', 'bot', 'bot-message');
-                loadingMessage.innerHTML = `
-                                <div class="bot-avatar">
-                                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAQlBMVEVHcExQUFA7OzwqKiomJiYcHByrq6s2NjYAAAADAwSJiYpiYmOWlpbR0dG8vLxQUFH////t7e0zMzPc3NxNTU2QkJCvWxi7AAAAFXRSTlMATpTM7v8SpP//Hv///////////1PNrLSPAAABEElEQVR4AYWTV5bDMAwD5cJoEPd2/6tu+Gyt5dT5BST2kFGUVW1WV2UR3nCLBkgCsHh71ktzNQEqr89r0BXq7JO7oRew+/9719850h81egv1kR+vkiNRvg8ANG3XI+RBIs/y0I8POiTFh8G4ys3k8m7AQiiu+ry42A/T/gPrJUXYXG6BZIihItM7fw0oGaiyJoB/P4B0Gupg5PrkcmaQBXPJ8f8XEukHCzVs7YPNi9/ag+0MUcH4lpRkCd2yLJ7/kpEM0RsF0HiCGWejgh1ljQ1y8iqwY1j7B7oYFjyCj1uIoWlmlDE0A0L3tDAAupAW5vfK/V7a32v/9nDww8kp9eb03hyv8/54nSLu5x/XcPIHqcofqYvE+ZIAAAAASUVORK5CYII=" alt="Bot">
-                                </div>
-                                <div class="bot-text"><span class="typing-animation"></span></div>
-                                `;
+
+                const avatar = document.createElement('div');
+                avatar.classList.add('bot-avatar');
+                avatar.innerHTML = `
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAQlBMVEVHcExQUFA7OzwqKiomJiYcHByrq6s2NjYAAAADAwSJiYpiYmOWlpbR0dG8vLxQUFH////t7e0zMzPc3NxNTU2QkJCvWxi7AAAAFXRSTlMATpTM7v8SpP//Hv///////////1PNrLSPAAABEElEQVR4AYWTV5bDMAwD5cJoEPd2/6tu+Gyt5dT5BST2kFGUVW1WV2UR3nCLBkgCsHh71ktzNQEqr89r0BXq7JO7oRew+/9719850h81egv1kR+vkiNRvg8ANG3XI+RBIs/y0I8POiTFh8G4ys3k8m7AQiiu+ry42A/T/gPrJUXYXG6BZIihItM7fw0oGaiyJoB/P4B0Gupg5PrkcmaQBXPJ8f8XEukHCzVs7YPNi9/ag+0MUcH4lpRkCd2yLJ7/kpEM0RsF0HiCGWejgh1ljQ1y8iqwY1j7B7oYFjyCj1uIoWlmlDE0A0L3tDAAupAW5vfK/V7a32v/9nDww8kp9eb03hyv8/54nSLu5x/XcPIHqcofqYvE+ZIAAAAASUVORK5CYII=" alt="Bot">
+`;
+
+                const botText = document.createElement('div');
+                botText.classList.add('bot-text');
+                botText.textContent = "Dame un segundo, por favor"; // Mensaje inicial
+
+                loadingMessage.appendChild(avatar);
+                loadingMessage.appendChild(botText);
                 chatBox.appendChild(loadingMessage);
                 chatBox.scrollTop = chatBox.scrollHeight;
+
+                // Rotación de mensajes
+                const waitingMessages = [
+                    "Dame un segundo, por favor",
+                    "Un momento, estoy pensando…",
+                    "Estoy en ello, no tardo nada."
+                ];
+                const waitingMessages2 = [
+                    "Estoy cocinando una buena respuesta para ti...",
+                    "Esto va a fuego lento… pero sale bien.",
+                    "Estoy afilando la mejor recomendación.",
+                    "Estoy echando un vistazo al almacén..."
+                ];
+
+                let lastWaitingMessage = null;
+                let waitingInterval = null;
+                let waitingTimeout4 = null;
+                let waitingTimeout8 = null;
+
+                function getRandomMessage(list, last) {
+                    let newMsg;
+                    do {
+                        newMsg = list[Math.floor(Math.random() * list.length)];
+                    } while (newMsg === last && list.length > 1);
+                    lastWaitingMessage = newMsg;
+                    return newMsg;
+                }
+
+                waitingTimeout4 = setTimeout(() => {
+                    botText.style.opacity = 0;
+                    setTimeout(() => {
+                        botText.textContent = getRandomMessage(waitingMessages, lastWaitingMessage);
+                        botText.style.opacity = 1;
+                    }, 400);
+                }, 4000);
+
+                waitingTimeout8 = setTimeout(() => {
+                    waitingInterval = setInterval(() => {
+                        botText.style.opacity = 0;
+                        setTimeout(() => {
+                            botText.textContent = getRandomMessage(waitingMessages2, lastWaitingMessage);
+                            botText.style.opacity = 1;
+                        }, 400);
+                    }, 4000);
+                }, 8000);
 
                 try {
                     const response = await fetch(webhookUrl, {
@@ -573,15 +626,20 @@
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ 
+                        body: JSON.stringify({
                             text: message,
                             sessionId: sessionId,
-                            currentURL: currentUrl 
+                            currentURL: currentUrl
                         }),
                     });
 
                     if (response.ok) {
                         const data = await response.json();
+
+                        clearTimeout(waitingTimeout4);
+                        clearTimeout(waitingTimeout8);
+                        clearInterval(waitingInterval);
+
                         setTimeout(() => {
                             loadingMessage.remove();
                             appendMessage(data.reply, 'bot');
@@ -691,4 +749,3 @@
     </script>
 
 </body>
-
